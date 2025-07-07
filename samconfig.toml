@@ -1,0 +1,57 @@
+version = 0.1
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate.parameters]
+lint = true
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "cognito-lambda-triggers"
+stack_name = "cognito-lambda-triggers"
+
+[default.package.parameters]
+resolve_s3 = true
+
+# --- Production Environment ---
+[prod]
+[prod.global]
+[prod.global.parameters]
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+s3_prefix = "cognito-lambda-triggers-prod"
+resolve_s3 = true
+stack_name = "cognito-lambda-prod"
+region = "eu-west-2"
+parameter_overrides=[
+    "Environment=prod",
+]
+
+# --- Development Environment ---
+[dev]
+[dev.global]
+[dev.global.parameters]
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+s3_prefix = "cognito-lambda-triggers-dev"
+resolve_s3 = true
+stack_name = "cognito-lambda-triggers-dev"
+region = "eu-west-2"
+parameter_overrides=[
+    "Environment=dev",
+]
+
+# --- Testing Environment ---
+[test]
+[test.global]
+[test.global.parameters]
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+s3_prefix = "cognito-lambda-triggers-test"
+resolve_s3 = true
+stack_name = "cognito-lambda-triggers-test"
+region = "eu-west-2"
+parameter_overrides=[
+    "Environment=test",
+]

@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  SAM template for deploying a Cognito User Pool with a post sign-up Lambda function.
+
+Parameters:
+  Environment:
+    Type: String
+    Description: The deployment environment (e.g. dev, test, prod).
+    AllowedValues:
+      - dev
+      - test
+      - prod
+    Default: dev
+
+Globals:
+  Function:
+    Runtime: python3.12
+    MemorySize: 128
+    Timeout: 90
+    Tracing: Active
+    Environment:
+      Variables:
+        POWERTOOLS_LOG_LEVEL: INFO
+        POWERTOOLS_SERVICE_NAME: !Sub ${AWS::StackName}
+        ENVIRONMENT_NAME: !Ref Environment
+
+Resources:
+  # --- Cognito User Pool ---
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${AWS::StackName}-user-pool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      LambdaConfig:
+        PostConfirmation: !GetAtt CognitoPostSignUpFunction.Arn
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub ${AWS::StackName}-user-pool-client
+      UserPoolId: !Ref UserPool
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
+      AccessTokenValidity: 15
+      IdTokenValidity: 15
+      RefreshTokenValidity: 30
+
+  # --- Lambda Functions ---
+  CognitoPostSignUpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-cognito-post-sign-up-function
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName} for Stage ${Environment}
+        - ResourceName: CognitoPostSignUpFunction
+      CodeUri: functions/cognito/post_sign_up/
+      Handler: app.lambda_handler
+
+
+  CognitoPostSignUpFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${CognitoPostSignUpFunction}
+      RetentionInDays: 7
+
+  # --- Permissions ---
+  CognitoPostSignUpFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref CognitoPostSignUpFunction
+      Action: lambda:InvokeFunction
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !GetAtt UserPool.Arn
