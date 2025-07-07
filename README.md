@@ -4,11 +4,11 @@ This repository contains examples on how to use [Cognito Lambda triggers](https:
 
 ## Contributing and Questions
 
-If you would like to add anything, ask a question about this or know something that would be helpful to others. Feel free to open a pull request or create an issue.
+If you would like to add anything, ask a question about this, or know something that would be helpful to others, please open a pull request or create an issue.
 
 ## More Resources
 
-If you want to learn more here are some resources:
+If you want to learn more, here are some resources:
 
 1. I have a repo where this is used in a larger system, which can be found [here](https://github.com/edinstance/AWS-Banking-System).
 2. Checkout the SAM GitHub Repository [here](https://github.com/aws/serverless-application-model) or the documentation [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html).
