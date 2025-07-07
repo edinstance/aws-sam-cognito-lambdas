@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: |
   SAM template for deploying a Cognito User Pool with a post sign-up Lambda function.
@@ -77,7 +77,6 @@ Resources:
         - ResourceName: CognitoPostSignUpFunction
       CodeUri: functions/cognito/post_sign_up/
       Handler: app.lambda_handler
-
 
   CognitoPostSignUpFunctionLogGroup:
     Type: AWS::Logs::LogGroup
